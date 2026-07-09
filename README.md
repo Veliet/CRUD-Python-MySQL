@@ -2,6 +2,7 @@
 
 - sqlite3
 - python
+- CRUD
 
 ## Upgrade
 
