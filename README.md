@@ -6,6 +6,7 @@
 
 ## Upgrade
 
-- interface
+- Tratamento de erros.
+- Interface
 - html
 - flask
