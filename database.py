@@ -1,67 +1,41 @@
-import sqlite3 as sql
+import mysql.connector as sql
+
+def criar_banco():
+    conn = sql.connect(
+        host="localhost",
+        user="root",
+        password="FDFS"
+    )
+    cursor = conn.cursor()
+
+    cursor.execute("CREATE DATABASE IF NOT EXISTS sample")
+
+    cursor.close()
+    conn.close()
 
 def conectar():
-    return sql.connect("pessoas.db")
+    return sql.connect(host="localhost",
+                       user="root",
+                       password="FDFS",
+                       database="sample"
+                       )
 
-def tabela():
+def aux(sql, parametros=None, fetch=False):
     conn = conectar()
-    cursor = conn.cursor()
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS dados (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nome TEXT NOT NULL,
-            idade INTEGER,
-            cpf TEXT,
-            telefone TEXT
-        
-        )
-    
-    """)
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql, parametros or ())
 
-    conn.commit()
-    conn.close()
+        if fetch:
+            return cursor.fetchall()
 
-def registrar(nome, idade, cpf, telefone):
-    conn = conectar()
-    cursor = conn.cursor()
+        conn.commit()
+        return cursor.rowcount
 
-    cursor.execute("""
-        INSERT INTO dados (nome, idade, cpf, telefone)
-        VALUES (?, ?, ?, ?)
-    
-    """,(nome, idade, cpf, telefone))
+    except Exception:
+        conn.rollback()
+        raise
 
-    conn.commit()
-    conn.close()
-
-def listar():
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT * FROM dados")
-    pessoas = cursor.fetchall()
-
-    conn.close()
-    return pessoas
-
-def atualizar(id, nome, idade, cpf, telefone):
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        UPDATE dados SET nome=?, idade=?, cpf=?, telefone=? WHERE id=?
-    
-    """, (nome, idade, cpf, telefone, id))
-
-    conn.commit()
-    conn.close()
-
-def excluir(id):
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute("DELETE FROM dados WHERE id=?", (id,))
-
-    conn.commit()
-    conn.close()
+    finally:
+        conn.close()
